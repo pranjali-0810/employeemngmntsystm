@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyCast Weather App</title>
+    <style>
+        /* --- CSS STYLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 75%;
+            padding: 12px 20px;
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        input::placeholder {
+            color: #ddd;
+        }
+
+        button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            outline: none;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00b4db;
+            transform: scale(1.1);
+        }
+
+        .weather-info {
+            display: none; /* Hidden until search */
+        }
+
+        .weather-icon {
+            width: 100px;
+            margin-top: 10px;
+        }
+
+        .temp {
+            font-size: 60px;
+            font-weight: 600;
+        }
+
+        .city {
+            font-size: 30px;
+            font-weight: 400;
+            margin-top: -10px;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+            margin-top: 30px;
+        }
+
+        .col {
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+
+        .col p {
+            font-size: 14px;
+        }
+
+        .error {
+            text-align: left;
+            margin-left: 10px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            color: #ffcccb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="Enter city name..." spellcheck="false">
+            <button id="searchBtn">🔍</button>
+        </div>
+
+        <div class="error" id="error">
+            <p>Invalid city name</p>
+        </div>
+
+        <div class="weather-info" id="weatherBox">
+            <img src="" class="weather-icon" id="weatherIcon">
+            <h1 class="temp" id="tempText">--°C</h1>
+            <h2 class="city" id="cityText">City</h2>
+            
+            <div class="details">
+                <div class="col">
+                    <div>
+                        <p class="humidity" id="humidityText">Humidity: --%</p>
+                        <p id="conditionText">Condition</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+        const apiKey = "bde86bc5222f47eda59112130251912";
+        const apiUrl = "https://api.weatherapi.com/v1/current.json?key=";
+
+        const cityInput = document.querySelector("#cityInput");
+        const searchBtn = document.querySelector("#searchBtn");
+        const weatherIcon = document.querySelector("#weatherIcon");
+        const weatherBox = document.querySelector("#weatherBox");
+        const errorMsg = document.querySelector("#error");
+
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + apiKey + `&q=${city}&aqi=yes`);
+
+            if (response.status == 400 || response.status == 404) {
+                errorMsg.style.display = "block";
+                weatherBox.style.display = "none";
+            } else {
+                var data = await response.json();
+
+                document.querySelector("#cityText").innerHTML = data.location.name;
+                document.querySelector("#tempText").innerHTML = Math.round(data.current.temp_c) + "°c";
+                document.querySelector("#humidityText").innerHTML = "Humidity: " + data.current.humidity + "%";
+                document.querySelector("#conditionText").innerHTML = data.current.condition.text;
+                
+                // Set the weather icon from API
+                weatherIcon.src = "https:" + data.current.condition.icon;
+
+                weatherBox.style.display = "block";
+                errorMsg.style.display = "none";
+            }
+        }
+
+        searchBtn.addEventListener("click", () => {
+            checkWeather(cityInput.value);
+        });
+
+        // Allow pressing "Enter" key
+        cityInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                checkWeather(cityInput.value);
+            }
+        });
+    </script>
+</body>
+</html>
