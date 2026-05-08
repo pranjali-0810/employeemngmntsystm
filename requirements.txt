@@ -1,0 +1,4 @@
+django
+mysqlclient
+gunicorn
+dj-database_url
